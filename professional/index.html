@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<script>
+// SpendOne order window handoff (same logic as the demobüromaterial shop):
+// reads order data from the URL fragment (#orderNo=...&street=...), keeps it for this tab
+// and removes it from the address bar. Card data is never part of the fragment.
+window.readSpendOnePrefill = function () {
+  const params = new URLSearchParams(location.hash.slice(1));
+  if (!params.has("orderNo")) {
+    try { return JSON.parse(sessionStorage.getItem("spendonePrefill") ?? "null"); }
+    catch { return null; }
+  }
+  const prefill = {
+    orderNo: params.get("orderNo"),
+    invoiceEmail: params.get("invoiceEmail"),
+    companyName: params.get("companyName"),
+    street: params.get("street"),
+    postcodeCity: params.get("postcodeCity"),
+    country: params.get("country"),
+    taxId: params.get("taxId"),
+    buyer: params.get("buyer"),
+    total: params.get("total"),
+    items: [...params]
+      .filter(([key]) => key.startsWith("item-"))
+      .map(([key, name]) => ({ id: key.slice(5), name })),
+  };
+  try { sessionStorage.setItem("spendonePrefill", JSON.stringify(prefill)); } catch {}
+  history.replaceState(null, "", location.pathname + location.search);
+  return prefill;
+};
+window.spendOnePrefill = window.readSpendOnePrefill();
+</script>
+<title>Demo AI Studio Professional | Demo-Software-Tools GmbH</title>
+<meta name="dst-plan" content="pro">
+<meta name="description" content="Demo AI Studio Professional, KI-Bildbearbeitung im Browser. 1.000 KI-Credits pro Nutzer und Monat, generatives Füllen und Erweitern, Stapelverarbeitung, Markenvorlagen, Export bis 8K, 1 TB Speicher. 29,90 € netto (35,58 € inkl. 19 % MwSt.) je Nutzer und Monat, monatlich kündbar. Art.-Nr. DST-DAI-PRO.">
+<meta property="og:type" content="product">
+<meta property="og:site_name" content="Demo-Software-Tools GmbH">
+<meta property="og:title" content="Demo AI Studio Professional | Demo-Software-Tools GmbH">
+<meta property="og:description" content="Demo AI Studio Professional, KI-Bildbearbeitung im Browser. 1.000 KI-Credits pro Nutzer und Monat, generatives Füllen und Erweitern, Stapelverarbeitung, Markenvorlagen, Export bis 8K, 1 TB Speicher. 29,90 € netto (35,58 € inkl. 19 % MwSt.) je Nutzer und Monat, monatlich kündbar. Art.-Nr. DST-DAI-PRO.">
+<meta property="product:brand" content="Demo-Software-Tools GmbH">
+<meta property="product:price:amount" content="35.58">
+<meta property="product:price:currency" content="EUR">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Demo AI Studio Professional",
+  "sku": "DST-DAI-PRO",
+  "mpn": "DST-DAI-PRO",
+  "category": "Software > Bildbearbeitung > Abonnement",
+  "brand": {
+    "@type": "Brand",
+    "name": "Demo-Software-Tools GmbH"
+  },
+  "manufacturer": {
+    "@type": "Organization",
+    "name": "Demo-Software-Tools GmbH"
+  },
+  "description": "Demo AI Studio Professional, KI-Bildbearbeitung im Browser. 1.000 KI-Credits pro Nutzer und Monat, generatives Füllen und Erweitern, Stapelverarbeitung, Markenvorlagen, Export bis 8K, 1 TB Speicher. 29,90 € netto (35,58 € inkl. 19 % MwSt.) je Nutzer und Monat, monatlich kündbar. Art.-Nr. DST-DAI-PRO.",
+  "offers": {
+    "@type": "Offer",
+    "price": "35.58",
+    "priceCurrency": "EUR",
+    "availability": "https://schema.org/InStock",
+    "url": "https://demoabo.spendone.com/professional/",
+    "eligibleQuantity": {
+      "@type": "QuantitativeValue",
+      "minValue": 1,
+      "unitText": "Nutzer"
+    },
+    "priceSpecification": [
+      {
+        "@type": "UnitPriceSpecification",
+        "price": "29.90",
+        "priceCurrency": "EUR",
+        "valueAddedTaxIncluded": false,
+        "billingDuration": "P1M",
+        "unitText": "Nutzer pro Monat"
+      },
+      {
+        "@type": "UnitPriceSpecification",
+        "price": "35.58",
+        "priceCurrency": "EUR",
+        "valueAddedTaxIncluded": true,
+        "billingDuration": "P1M",
+        "unitText": "Nutzer pro Monat"
+      }
+    ],
+    "seller": {
+      "@type": "Organization",
+      "name": "Demo-Software-Tools GmbH",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Pixelweg 12",
+        "postalCode": "60311",
+        "addressLocality": "Frankfurt am Main",
+        "addressCountry": "DE"
+      },
+      "vatID": "DE999999998"
+    }
+  }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f6f6fb;
+    --card: #ffffff;
+    --field: #ffffff;
+    --ink: #171a2c;
+    --ink-2: #444a63;
+    --muted: #6c7190;
+    --line: #e6e7f0;
+    --line-strong: #cfd1e0;
+    --brand: #4f3fe0;
+    --brand-dark: #3d2fc4;
+    --brand-50: #f0eeff;
+    --brand-line: #d9d3ff;
+    --on-brand: #ffffff;
+    --mint: #12b886;
+    --ok: #1a7f55;
+    --ok-bg: #e6f6ee;
+    --bar: #171a2c;
+    --bar-text: #c8cbe0;
+    --bar-strong: #ffffff;
+    --danger: #c2412d;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(23, 26, 44, .05), 0 2px 6px rgba(23, 26, 44, .04);
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0f1120; --card: #171a2c; --field: #12152a; --ink: #eceefa; --ink-2: #c3c6dc; --muted: #9196b3;
+      --line: #262a42; --line-strong: #363b5a; --brand: #8b7dff; --brand-dark: #a397ff; --brand-50: #211e44; --brand-line: #3b3577;
+      --on-brand: #0f1120; --mint: #3ddbae; --ok: #4fd39a; --ok-bg: #12302a; --bar: #0a0c18; --bar-text: #a9adc8; --bar-strong: #ffffff;
+      --danger: #ff8a73; --shadow: 0 1px 2px rgba(0, 0, 0, .3);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0f1120; --card: #171a2c; --field: #12152a; --ink: #eceefa; --ink-2: #c3c6dc; --muted: #9196b3;
+    --line: #262a42; --line-strong: #363b5a; --brand: #8b7dff; --brand-dark: #a397ff; --brand-50: #211e44; --brand-line: #3b3577;
+    --on-brand: #0f1120; --mint: #3ddbae; --ok: #4fd39a; --ok-bg: #12302a; --bar: #0a0c18; --bar-text: #a9adc8; --bar-strong: #ffffff;
+    --danger: #ff8a73; --shadow: 0 1px 2px rgba(0, 0, 0, .3);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    font-family: "Plus Jakarta Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--brand); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+  img, svg { max-width: 100%; }
+
+  /* Utility bar and header */
+  .util { background: var(--bar); color: var(--bar-text); font-size: 12px; }
+  .util .wrap { display: flex; justify-content: space-between; align-items: center; height: 32px; gap: 16px; }
+  .util b { color: var(--bar-strong); font-weight: 600; }
+  .site { background: var(--card); border-bottom: 1px solid var(--line); }
+  .site .wrap { display: flex; align-items: center; gap: 32px; height: 66px; }
+  .logo { display: inline-flex; align-items: center; gap: 9px; font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); white-space: nowrap; }
+  .logo:hover { text-decoration: none; }
+  .logo b { color: var(--brand); font-weight: 800; }
+  .logo .mark { width: 30px; height: 30px; border-radius: 9px; background: var(--brand); color: var(--on-brand); display: inline-flex; align-items: center; justify-content: center; }
+  .nav { display: flex; gap: 24px; font-size: 13.5px; font-weight: 500; }
+  .nav a { color: var(--ink-2); padding: 22px 0; border-bottom: 2px solid transparent; }
+  .nav a:hover { color: var(--brand); text-decoration: none; }
+  .nav a.active { color: var(--ink); border-bottom-color: var(--brand); }
+  .head-actions { margin-left: auto; display: flex; align-items: center; gap: 18px; font-size: 13.5px; font-weight: 600; }
+  .head-actions a { color: var(--ink-2); }
+  .pill-btn { border: 1px solid var(--line-strong); border-radius: 999px; padding: 7px 14px; color: var(--ink) !important; }
+  .pill-btn:hover { border-color: var(--brand); text-decoration: none; }
+
+  /* Product hero */
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 48px; align-items: center; padding: 44px 0 36px; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: var(--brand); background: var(--brand-50); border: 1px solid var(--brand-line); border-radius: 999px; padding: 4px 11px; margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(30px, 4.2vw, 44px); line-height: 1.08; letter-spacing: -0.035em; margin: 0 0 14px; font-weight: 800; }
+  .hero .lead { font-size: 16.5px; color: var(--ink-2); margin: 0 0 20px; max-width: 34em; }
+  .hero-facts { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0; padding: 0; list-style: none; font-size: 13.5px; color: var(--ink-2); }
+  .hero-facts li { display: flex; align-items: center; gap: 7px; }
+  .hero-facts svg { color: var(--mint); flex-shrink: 0; }
+
+  /* Editor mockup with before/after slider */
+  .editor { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 18px 40px -18px rgba(40, 30, 120, .35), var(--shadow); overflow: hidden; }
+  .ed-top { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+  .ed-top .dots { display: flex; gap: 6px; }
+  .ed-top .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }
+  .ed-top .file { font-weight: 600; color: var(--ink-2); }
+  .ed-top .zoom { margin-left: auto; }
+  .ed-body { display: grid; grid-template-columns: 44px minmax(0, 1fr); }
+  .ed-tools { border-right: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0; }
+  .ed-tools span { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+  .ed-tools span.on { background: var(--brand-50); color: var(--brand); }
+  .stage { position: relative; aspect-ratio: 16 / 10; background: #222; user-select: none; }
+  .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .stage .before { filter: saturate(.25) brightness(.92) contrast(.9); clip-path: inset(0 calc(100% - var(--split, 50%)) 0 0); }
+  .stage .handle { position: absolute; top: 0; bottom: 0; left: var(--split, 50%); width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.15); pointer-events: none; }
+  .stage .handle::after { content: ""; position: absolute; top: 50%; left: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.25); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23171a2c' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6-6 6 6 6M15 6l6 6-6 6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; }
+  .stage .tag { position: absolute; top: 10px; font-size: 11px; font-weight: 600; color: #fff; background: rgba(15, 17, 32, .6); padding: 3px 8px; border-radius: 6px; pointer-events: none; }
+  .stage .tag.l { left: 10px; } .stage .tag.r { right: 10px; }
+  .stage input[type=range] { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
+  .prompt { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
+  .prompt .q { flex: 1; background: var(--bg); border: 1px solid var(--line); border-radius: 9px; padding: 7px 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prompt .go { display: inline-flex; align-items: center; gap: 6px; background: var(--brand); color: var(--on-brand); font-weight: 600; font-size: 12.5px; border-radius: 9px; padding: 7px 12px; white-space: nowrap; }
+
+  /* Plan picker */
+  .plans-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin: 18px 0 18px; }
+  .plans-head h2 { font-size: 24px; letter-spacing: -0.025em; margin: 0 0 4px; }
+  .plans-head p { margin: 0; color: var(--muted); }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .seg { display: inline-flex; background: var(--card); border: 1px solid var(--line-strong); border-radius: 999px; padding: 3px; }
+  .seg button { border: 0; background: transparent; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-2); padding: 7px 14px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .seg button.on { background: var(--ink); color: var(--card); }
+  .seg .save { font-size: 11px; font-weight: 700; color: var(--ok); background: var(--ok-bg); padding: 1px 6px; border-radius: 999px; }
+  .seg button.on .save { color: var(--ink); background: var(--mint); }
+  .seats { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+  .stepper { display: inline-flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--field); overflow: hidden; }
+  .stepper button { width: 34px; height: 34px; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 17px; cursor: pointer; }
+  .stepper button:hover { background: var(--bg); }
+  .stepper input { width: 52px; height: 34px; border: 0; border-left: 1px solid var(--line); border-right: 1px solid var(--line); text-align: center; font: inherit; font-weight: 700; color: var(--ink); background: transparent; -moz-appearance: textfield; }
+  .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
+  .plan { position: relative; display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 22px 22px; box-shadow: var(--shadow); }
+  .plan.featured { border: 2px solid var(--brand); padding: 23px 21px 21px; }
+  .plan .badge { position: absolute; top: -12px; left: 21px; background: var(--brand); color: var(--on-brand); font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+  .plan h3 { font-size: 19px; margin: 0 0 4px; letter-spacing: -0.02em; }
+  .plan .for { color: var(--muted); font-size: 13.5px; margin: 0 0 18px; min-height: 42px; }
+  .price { display: flex; align-items: baseline; gap: 6px; }
+  .price .amt { font-size: 36px; font-weight: 800; letter-spacing: -0.035em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .price .per { color: var(--muted); font-size: 13px; line-height: 1.3; }
+  .plan .was { font-size: 12.5px; color: var(--muted); margin-top: 6px; min-height: 19px; }
+  .plan .was s { margin-right: 4px; }
+  .plan .total { margin: 14px 0 0; padding: 10px 12px; background: var(--bg); border-radius: 10px; font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .plan .total b { color: var(--ink); }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; border: 0; border-radius: 11px; padding: 12px 16px; font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; transition: background .15s, border-color .15s; }
+  .btn:hover { text-decoration: none; }
+  .btn-primary { background: var(--brand); color: var(--on-brand); }
+  .btn-primary:hover { background: var(--brand-dark); }
+  .btn-outline { background: var(--card); color: var(--ink); border: 1px solid var(--line-strong); }
+  .btn-outline:hover { border-color: var(--brand); color: var(--brand); }
+  .plan .btn { margin-top: 16px; }
+  .plan ul { list-style: none; margin: 18px 0 0; padding: 16px 0 0; border-top: 1px solid var(--line); display: grid; gap: 9px; font-size: 13.5px; color: var(--ink-2); }
+  .plan li { display: flex; gap: 9px; align-items: flex-start; }
+  .plan li svg { flex-shrink: 0; margin-top: 3px; color: var(--brand); }
+  .plan li.head { font-weight: 600; color: var(--ink); }
+  .min-note { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: center; }
+  .trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 28px; margin: 22px 0 0; font-size: 13px; color: var(--muted); }
+  .trust span { display: inline-flex; align-items: center; gap: 7px; }
+
+  /* Comparison and FAQ */
+  .section { margin-top: 56px; }
+  .section h2 { font-size: 22px; letter-spacing: -0.025em; margin: 0 0 16px; }
+  .table-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  table.compare { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 13.5px; }
+  table.compare th, table.compare td { padding: 11px 16px; border-bottom: 1px solid var(--line); text-align: center; }
+  table.compare tr:last-child td, table.compare tr:last-child th { border-bottom: 0; }
+  table.compare th:first-child, table.compare td:first-child { text-align: left; color: var(--ink-2); width: 34%; }
+  table.compare thead th { font-size: 14px; color: var(--ink); background: var(--bg); }
+  table.compare thead th.hl { color: var(--brand); }
+  table.compare td.hl { background: var(--brand-50); }
+  table.compare .grp td { background: var(--bg); font-weight: 700; color: var(--ink); text-align: left; }
+  .yes { color: var(--brand); } .no { color: var(--line-strong); }
+  .faq { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .faq details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .faq summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; color: var(--muted); font-weight: 400; font-size: 18px; line-height: 1; }
+  .faq details[open] summary::after { content: "\2212"; }
+  .faq p { margin: 10px 0 0; color: var(--ink-2); font-size: 13.5px; }
+
+  .site-footer { background: var(--bar); color: var(--bar-text); margin-top: 64px; font-size: 13px; }
+  .foot-cols { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.3fr; gap: 28px; padding: 36px 0 28px; }
+  .foot-cols h4 { color: var(--bar-strong); font-size: 13px; font-weight: 600; margin: 4px 0 10px; }
+  .foot-cols a, .foot-cols span { display: block; color: var(--bar-text); margin-bottom: 6px; }
+  .foot-cols a:hover { color: var(--bar-strong); }
+  .foot-cols p { margin: 10px 0 0; max-width: 260px; }
+  .logo-light { color: var(--bar-strong) !important; }
+  .logo-light b { color: #b3a9ff; }
+  .foot-bottom { border-top: 1px solid rgba(255,255,255,.1); padding: 14px 0 18px; font-size: 12px; }
+
+  /* Checkout */
+  .co-head { background: var(--card); border-bottom: 1px solid var(--line); }
+  .co-head .wrap { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 66px; }
+  .steps { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; }
+  .step { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+  .step .n { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line-strong); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .step.done { color: var(--ink-2); }
+  .step.done .n { background: var(--brand-50); border-color: var(--brand); color: var(--brand); }
+  .step.now { color: var(--ink); font-weight: 700; }
+  .step.now .n { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
+  .steps .bar { width: 40px; height: 2px; background: var(--line-strong); border-radius: 1px; }
+  .steps .bar.done { background: var(--brand); }
+  .secure { justify-self: end; display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); }
+  .page-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 24px 0 14px; }
+  .page-title h1 { font-size: 24px; margin: 0; letter-spacing: -0.025em; }
+  .page-title a { font-size: 13px; font-weight: 600; }
+  .co-main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+  .card + .card { margin-top: 16px; }
+  .card h2 { font-size: 16px; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; letter-spacing: -0.01em; }
+  .card h2 .num { width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: var(--card); font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
+  .card h2 small { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; }
+  .c2 { grid-column: span 2; } .c3 { grid-column: span 3; } .c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c12 { grid-column: span 12; }
+  label.f { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 5px; }
+  label.f b { color: var(--danger); font-weight: 600; }
+  select, input.in { width: 100%; font: inherit; font-size: 13.5px; color: var(--ink); background: var(--field); border: 1px solid var(--line-strong); border-radius: 9px; padding: 9px 11px; transition: border-color .15s, box-shadow .15s; }
+  select { appearance: none; padding-right: 32px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236c7190' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 11px center; }
+  select:focus, input.in:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 20%, transparent); }
+  .suffix { display: flex; }
+  .suffix input.in { border-radius: 9px 0 0 9px; }
+  .suffix span { display: flex; align-items: center; padding: 0 11px; border: 1px solid var(--line-strong); border-left: 0; border-radius: 0 9px 9px 0; background: var(--bg); color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+  .check { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; color: var(--ink-2); cursor: pointer; }
+  .check input { width: 16px; height: 16px; margin: 1px 0 0; accent-color: var(--brand); flex-shrink: 0; }
+  .pay { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .pay label { position: relative; border: 1px solid var(--line-strong); border-radius: 10px; padding: 12px 12px 12px 40px; cursor: pointer; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .pay label:hover { border-color: var(--brand); }
+  .pay label input { position: absolute; opacity: 0; }
+  .pay label::before { content: ""; position: absolute; left: 14px; top: 50%; margin-top: -8px; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line-strong); background: var(--field); }
+  .pay label.sel { border-color: var(--brand); background: var(--brand-50); box-shadow: 0 0 0 1px var(--brand); }
+  .pay label.sel::before { border-color: var(--brand); background: radial-gradient(circle, var(--brand) 0 4.5px, var(--field) 5px); }
+  .pay label:has(input:focus-visible) { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .pay svg { color: var(--muted); flex-shrink: 0; }
+  .pay-info { font-size: 13px; color: var(--ink-2); padding: 12px 14px; background: var(--bg); border-radius: 9px; }
+  .card-secure { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-top: 12px; }
+
+  .summary { position: sticky; top: calc(16px + env(safe-area-inset-top, 0px)); }
+  .sum-item { display: flex; gap: 12px; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+  .app-icon { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(140deg, #6a5cff, #4f3fe0 55%, #2bc4a0); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; }
+  .sum-item strong { font-size: 14px; display: block; }
+  .sum-item small { color: var(--muted); font-size: 12.5px; }
+  .sum-item a { margin-left: auto; font-size: 12.5px; font-weight: 600; align-self: flex-start; }
+  .sum-ctrl { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; color: var(--ink-2); font-weight: 600; }
+  .sum-ctrl .seg button { padding: 5px 11px; font-size: 12.5px; }
+  .sum-ctrl .stepper button { width: 30px; height: 30px; }
+  .sum-ctrl .stepper input { width: 44px; height: 30px; }
+  .row { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .row.total { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 10px; color: var(--ink); font-weight: 600; }
+  .row.big { font-size: 20px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; padding-top: 6px; }
+  .renew { font-size: 12.5px; color: var(--ink-2); background: var(--bg); border-radius: 9px; padding: 10px 12px; margin-top: 10px; }
+  .summary .check { margin-top: 14px; }
+  .summary .btn { margin-top: 14px; }
+  .spendone-note { white-space: pre-line; font-size: 12.5px; background: var(--brand-50); color: var(--ink); border: 1px solid var(--brand-line); border-radius: 9px; padding: 10px 12px; margin-top: 14px; }
+  .legal { font-size: 11.5px; color: var(--muted); margin: 12px 0 0; }
+  .co-foot { text-align: center; font-size: 12px; color: var(--muted); padding: 28px 0 32px; }
+  .co-foot a { color: var(--muted); margin: 0 8px; }
+
+  /* Confirmation */
+  .conf-hero { text-align: center; padding: 38px 0 26px; }
+  .conf-hero .ok { width: 64px; height: 64px; border-radius: 50%; background: var(--ok-bg); color: var(--ok); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  .conf-hero h1 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.03em; }
+  .conf-hero p { color: var(--ink-2); margin: 0 auto; max-width: 560px; }
+  .order-no { display: inline-flex; gap: 8px; align-items: center; margin-top: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 13px; color: var(--muted); }
+  .order-no b { color: var(--ink); }
+  .conf-main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; max-width: 1000px; margin: 0 auto; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .block h3 { font-size: 13px; font-weight: 700; color: var(--muted); margin: 0 0 6px; }
+  .block p { margin: 0; color: var(--ink); line-height: 1.6; }
+  dl.facts { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 13.5px; }
+  dl.facts dt { color: var(--muted); }
+  dl.facts dd { margin: 0; text-align: right; font-weight: 600; }
+  .next-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; counter-reset: s; }
+  .next-steps li { display: flex; gap: 12px; font-size: 13.5px; color: var(--ink-2); counter-increment: s; }
+  .next-steps li::before { content: counter(s); width: 24px; height: 24px; border-radius: 50%; background: var(--brand-50); color: var(--brand); font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .next-steps b { color: var(--ink); }
+  .actions-row { display: flex; gap: 10px; margin-top: 16px; }
+
+  @media (max-width: 980px) {
+    .hero { grid-template-columns: 1fr; gap: 28px; }
+    .plans { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; }
+    .plan .for { min-height: 0; }
+    .co-main, .conf-main { grid-template-columns: 1fr; }
+    .summary { position: static; }
+    .nav { display: none; }
+    .co-head .wrap { grid-template-columns: 1fr auto; }
+    .steps { display: none; }
+    .faq { grid-template-columns: 1fr; }
+    .foot-cols { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 680px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+    .grid > div { grid-column: span 2; }
+    .pay { grid-template-columns: 1fr; }
+    .cols { grid-template-columns: 1fr; }
+    .util .hide-sm, .head-actions .hide-sm { display: none; }
+    .plans-head { align-items: start; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media print {
+    .co-head, .actions-row, .co-foot, .legal { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Shared artwork: a lakeside landscape used as the photo in the editor mockup -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d1b69"/><stop offset=".45" stop-color="#c2477a"/><stop offset=".75" stop-color="#ff9a5a"/><stop offset="1" stop-color="#ffd27a"/></linearGradient>
+    <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2915a"/><stop offset=".35" stop-color="#9a3f6e"/><stop offset="1" stop-color="#1d1546"/></linearGradient>
+    <radialGradient id="sun" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff6d6"/><stop offset=".55" stop-color="#ffd27a"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="1.4"/></filter>
+  </defs>
+  <symbol id="scene" viewBox="0 0 640 400" preserveAspectRatio="xMidYMid slice">
+    <rect width="640" height="400" fill="url(#sky)"/>
+    <circle cx="420" cy="236" r="90" fill="url(#sun)"/>
+    <circle cx="420" cy="236" r="30" fill="#fff3cf"/>
+    <path d="M0 250 L70 196 L120 222 L190 150 L250 205 L300 180 L360 236 L640 236 L640 260 L0 260 Z" fill="#5a2a6e" opacity=".85"/>
+    <path d="M330 250 L420 200 L470 222 L540 168 L600 210 L640 196 L640 262 L330 262 Z" fill="#4a2160" opacity=".9"/>
+    <path d="M0 262 L90 222 L160 246 L230 214 L310 252 L640 252 L640 268 L0 268 Z" fill="#2b1748"/>
+    <rect y="262" width="640" height="138" fill="url(#lake)"/>
+    <g fill="#fff3cf" opacity=".75" filter="url(#soft)">
+      <rect x="392" y="276" width="56" height="3" rx="1.5"/><rect x="380" y="292" width="80" height="3" rx="1.5" opacity=".7"/>
+      <rect x="398" y="310" width="44" height="3" rx="1.5" opacity=".55"/><rect x="372" y="330" width="96" height="3" rx="1.5" opacity=".4"/>
+    </g>
+    <path d="M0 400 L0 330 Q60 318 120 334 Q170 346 200 400 Z" fill="#140d2e"/>
+    <g fill="#140d2e">
+      <path d="M58 334 l14 -60 l14 60 z"/><path d="M84 338 l11 -46 l11 46 z"/><path d="M30 340 l10 -40 l10 40 z"/>
+    </g>
+    <g transform="translate(250 300)">
+      <path d="M0 0 L60 0 L52 10 L8 10 Z" fill="#140d2e"/><rect x="28" y="-26" width="2" height="26" fill="#140d2e"/><path d="M30 -26 L30 -4 L46 -4 Z" fill="#140d2e"/>
+    </g>
+  </symbol>
+</svg>
+
+<!-- ========== View 1: product and pricing ========== -->
+<div id="viewShop">
+  <div class="util">
+    <div class="wrap">
+      <span>Demo-Software-Tools GmbH. <b>Monatlich kündbar.</b></span>
+      <span class="hide-sm">Hosting in der EU, DSGVO-konform</span>
+    </div>
+  </div>
+
+  <header class="site">
+    <div class="wrap">
+      <a class="logo" href="#" data-go="shop" aria-label="Demo-Software-Tools Startseite">
+        <span class="mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg></span>
+        <span>Demo-Software-<b>Tools</b></span>
+      </a>
+      <nav class="nav" aria-label="Hauptnavigation">
+        <a href="#" class="active" data-go="shop">Demo AI Studio</a>
+        <a href="#plans">Preise</a>
+        <a href="#compare">Funktionen</a>
+        <a href="#faq">Häufige Fragen</a>
+      </nav>
+      <div class="head-actions">
+        <a href="#" class="hide-sm" onclick="return false">Anmelden</a>
+        <a href="#" class="pill-btn" onclick="return false">Vertrieb kontaktieren</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <span class="eyebrow"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8zM19 14l.9 2.6 2.6.9-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9z"/></svg>KI-Bildbearbeitung im Browser</span>
+        <h1>Demo AI Studio Professional</h1>
+        <p class="lead">Bilder freistellen, retuschieren und mit einem Satz verändern. Für Marketing, E-Commerce und Agenturen, mit zentraler Lizenzverwaltung für das ganze Team.</p>
+        <ul class="hero-facts">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>Sofort startklar</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>Rechnung mit ausgewiesener MwSt.</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>Nutzer jederzeit anpassbar</li>
+        </ul>
+      </div>
+
+      <figure class="editor" style="margin:0" aria-label="Vorschau des Editors mit Vorher-Nachher-Vergleich">
+        <div class="ed-top">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="file">Kampagne_Herbst.jpg</span>
+          <span class="zoom">100 %</span>
+        </div>
+        <div class="ed-body">
+          <div class="ed-tools" aria-hidden="true">
+            <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l7 17 2.5-7.5L21 11z"/></svg></span>
+            <span class="on"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z"/></svg></span>
+            <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14M18 22V8a2 2 0 0 0-2-2H2"/></svg></span>
+            <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg></span>
+            <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4M15 3h4a2 2 0 0 1 2 2v4M9 21H5a2 2 0 0 1-2-2v-4M15 21h4a2 2 0 0 0 2-2v-4"/></svg></span>
+          </div>
+          <div class="stage" id="stage">
+            <svg aria-hidden="true"><use href="#scene"/></svg>
+            <svg class="before" aria-hidden="true"><use href="#scene"/></svg>
+            <span class="tag l">Vorher</span><span class="tag r">Nachher</span>
+            <span class="handle"></span>
+            <input type="range" id="split" min="0" max="100" value="46" aria-label="Vorher-Nachher-Vergleich verschieben">
+          </div>
+        </div>
+        <figcaption class="prompt">
+          <span class="q">Farben wie zur goldenen Stunde, Himmel kräftiger</span>
+          <span class="go"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z"/></svg>Anwenden</span>
+        </figcaption>
+      </figure>
+    </section>
+
+    <section id="plans" aria-labelledby="plansTitle">
+      <div class="plans-head">
+        <div>
+          <h2 id="plansTitle">Edition wählen</h2>
+          <p>Alle Preise je Nutzer und Monat, zzgl. MwSt.</p>
+        </div>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Abrechnungszeitraum">
+            <button type="button" data-cycle="monthly" class="on" aria-pressed="true">Monatlich</button>
+            <button type="button" data-cycle="yearly" aria-pressed="false">Jährlich <span class="save">-20 %</span></button>
+          </div>
+          <label class="seats"><span>Nutzer</span>
+            <span class="stepper">
+              <button type="button" data-step="-1" aria-label="Einen Nutzer weniger">&minus;</button>
+              <input type="number" id="seats" min="1" max="250" value="1" inputmode="numeric" aria-label="Anzahl Nutzer">
+              <button type="button" data-step="1" aria-label="Einen Nutzer mehr">+</button>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="plans" id="planCards"></div>
+
+      <div class="trust">
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg>Server in Frankfurt am Main</span>
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Zahlung per Kreditkarte</span>
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>Kündigung jederzeit zum Monatsende</span>
+      </div>
+    </section>
+
+    <section class="section" id="compare">
+      <h2>Editionen im Vergleich</h2>
+      <div class="table-wrap">
+        <table class="compare">
+          <thead><tr><th>Funktion</th><th>Basic</th><th class="hl">Professional</th><th>Enterprise</th></tr></thead>
+          <tbody id="compareBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <h2>Häufige Fragen</h2>
+      <div class="faq">
+        <details><summary>Wie wird abgerechnet?</summary><p>Monatlich im Voraus je Nutzer, auf Wunsch jährlich mit 20 % Rabatt. Sie erhalten jeden Monat eine Rechnung mit ausgewiesener MwSt. an Ihre Rechnungs-E-Mail.</p></details>
+        <details><summary>Kann ich Nutzer später hinzufügen?</summary><p>Ja. Zusätzliche Nutzer werden anteilig bis zum Ende des laufenden Abrechnungszeitraums berechnet. Nicht mehr benötigte Lizenzen entfallen zum nächsten Abrechnungsdatum.</p></details>
+        <details><summary>Was sind KI-Credits?</summary><p>Jede KI-Aktion wie Freistellen, generatives Füllen oder Hochskalieren verbraucht Credits. Nicht genutzte Credits verfallen am Monatsende.</p></details>
+        <details><summary>Kann ich die Edition wechseln?</summary><p>Ein Upgrade gilt sofort und wird anteilig berechnet. Ein Downgrade wird zum Ende des laufenden Abrechnungszeitraums wirksam.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="foot-cols">
+        <div>
+          <a class="logo logo-light" href="#" data-go="shop"><span class="mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg></span><span>Demo-Software-<b>Tools</b></span></a>
+          <p>Software-Abos für Unternehmen, einfach online gebucht.</p>
+        </div>
+        <div><h4>Produkt</h4><a href="#plans">Preise</a><a href="#compare">Funktionen</a><a href="#" onclick="return false">Sicherheit</a><a href="#" onclick="return false">Status</a></div>
+        <div><h4>Unternehmen</h4><a href="#" onclick="return false">Über uns</a><a href="#" onclick="return false">AGB</a><a href="#" onclick="return false">Datenschutz</a><a href="#" onclick="return false">Impressum</a></div>
+        <div><h4>Kontakt</h4><span>Demo-Software-Tools GmbH</span><span>Pixelweg 12, 60311 Frankfurt am Main</span><span>+49 69 123456-0</span><span>billing@demo-software-tools.de</span></div>
+      </div>
+      <div class="foot-bottom">Demo-Software-Tools ist ein fiktiver Demo-Shop. Alle Firmen- und Produktangaben dienen nur Präsentationszwecken.</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ========== View 2: checkout ========== -->
+<div id="viewCheckout" hidden>
+  <header class="co-head">
+    <div class="wrap">
+      <a class="logo" href="#" data-go="shop"><span class="mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg></span><span>Demo-Software-<b>Tools</b></span></a>
+      <div class="steps" aria-label="Fortschritt">
+        <div class="step done"><span class="n"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span>Edition</div>
+        <span class="bar done"></span>
+        <div class="step now"><span class="n">2</span>Daten &amp; Zahlung</div>
+        <span class="bar"></span>
+        <div class="step"><span class="n">3</span>Bestätigung</div>
+      </div>
+      <span class="secure"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Sichere Bestellung</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="page-title">
+      <h1>Abo abschließen</h1>
+      <a href="#" data-go="shop">&lsaquo; Zurück zu den Editionen</a>
+    </div>
+
+    <form class="co-main" id="checkout" autocomplete="off">
+      <div>
+        <div class="card">
+          <h2><span class="num">1</span>Firmendaten &amp; Rechnungsadresse</h2>
+          <div class="grid">
+            <div class="c5"><label class="f" for="company">Firmenname <b>*</b></label><input class="in" id="company" required></div>
+            <div class="c4"><label class="f" for="vatId">USt-IdNr.</label><input class="in" id="vatId"></div>
+            <div class="c3"><label class="f" for="poNumber">Bestellnummer</label><input class="in" id="poNumber"></div>
+            <div class="c2"><label class="f" for="salutation">Anrede</label><select id="salutation"><option>Frau</option><option>Herr</option><option>Divers</option></select></div>
+            <div class="c5"><label class="f" for="firstName">Vorname <b>*</b></label><input class="in" id="firstName" required></div>
+            <div class="c5"><label class="f" for="lastName">Nachname <b>*</b></label><input class="in" id="lastName" required></div>
+            <div class="c4"><label class="f" for="phone">Telefon</label><input class="in" id="phone" type="tel"></div>
+            <div class="c4"><label class="f" for="email">E-Mail <b>*</b></label><input class="in" id="email" type="email" required></div>
+            <div class="c4"><label class="f" for="invoiceEmail">Rechnungs-E-Mail (falls abweichend)</label><input class="in" id="invoiceEmail" type="email"></div>
+            <div class="c4"><label class="f" for="street">Straße und Hausnummer <b>*</b></label><input class="in" id="street" required></div>
+            <div class="c2"><label class="f" for="postcode">PLZ <b>*</b></label><input class="in" id="postcode" required></div>
+            <div class="c3"><label class="f" for="city">Ort <b>*</b></label><input class="in" id="city" required></div>
+            <div class="c3"><label class="f" for="country">Land <b>*</b></label><select id="country"><option>Deutschland</option><option>Österreich</option><option>Schweiz</option></select></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span class="num">2</span>Lizenzverwaltung</h2>
+          <div class="grid">
+            <div class="c6"><label class="f" for="adminEmail">E-Mail der Lizenz-Administration <b>*</b></label><input class="in" id="adminEmail" type="email" required>
+              <div class="hint">Erhält die Einladung und verteilt die Lizenzen an das Team.</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span class="num">3</span>Zahlungsart</h2>
+          <div class="pay">
+            <label class="sel"><input type="radio" name="pay" value="card" checked>Kreditkarte
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg></label>
+          </div>
+          <div id="payCard">
+            <div class="grid">
+              <div class="c4"><label class="f" for="cardHolder">Karteninhaber <b>*</b></label><input class="in" id="cardHolder" required data-pay></div>
+              <div class="c4"><label class="f" for="cardNo">Kartennummer <b>*</b></label><input class="in" id="cardNo" required data-pay inputmode="numeric" maxlength="19"></div>
+              <div class="c2"><label class="f" for="expiry">Gültig bis <b>*</b></label><input class="in" id="expiry" required data-pay inputmode="numeric" maxlength="5"></div>
+              <div class="c2"><label class="f" for="cvc">CVC <b>*</b></label><input class="in" id="cvc" required data-pay inputmode="numeric" maxlength="4"></div>
+            </div>
+            <div class="card-secure"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Die Karte wird für alle folgenden Abrechnungen dieses Abos belastet.</div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="card summary" aria-labelledby="sumTitle">
+        <h2 id="sumTitle">Ihr Abo</h2>
+        <div class="sum-item">
+          <div class="app-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8zM19 14l.9 2.6 2.6.9-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9z"/></svg></div>
+          <div><strong id="sumPlan">Demo AI Studio Professional</strong><small id="sumPer"></small></div>
+          <a href="#plans" data-go="plans">Ändern</a>
+        </div>
+        <div class="sum-ctrl">
+          <span>Abrechnung</span>
+          <div class="seg" role="group" aria-label="Abrechnungszeitraum">
+            <button type="button" data-cycle="monthly" class="on" aria-pressed="true">Monatlich</button>
+            <button type="button" data-cycle="yearly" aria-pressed="false">Jährlich</button>
+          </div>
+        </div>
+        <div class="sum-ctrl">
+          <span>Nutzer</span>
+          <span class="stepper">
+            <button type="button" data-step="-1" aria-label="Einen Nutzer weniger">&minus;</button>
+            <input type="number" id="seats2" min="1" max="250" value="1" inputmode="numeric" aria-label="Anzahl Nutzer">
+            <button type="button" data-step="1" aria-label="Einen Nutzer mehr">+</button>
+          </span>
+        </div>
+        <div class="row"><span id="lineLabel"></span><span id="lineAmt"></span></div>
+        <div class="row" id="discRow" hidden><span>Rabatt jährliche Zahlung</span><span id="discAmt"></span></div>
+        <div class="row total"><span>Netto</span><span id="sumNet"></span></div>
+        <div class="row"><span>MwSt. (19 %)</span><span id="sumVat"></span></div>
+        <div class="row big"><span>Heute fällig</span><span id="sumGross"></span></div>
+        <div class="renew" id="renewText"></div>
+
+        <label class="check"><input type="checkbox" required><span>Ich akzeptiere die <a href="#" onclick="return false">AGB</a> und die <a href="#" onclick="return false">Datenschutzhinweise</a>. Das Abo verlängert sich automatisch und ist zum Ende des Abrechnungszeitraums kündbar.</span></label>
+        <button class="btn btn-primary" type="submit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Zahlungspflichtig abonnieren</button>
+        <div class="spendone-note" id="spendoneNote" hidden></div>
+        <p class="legal">Demo-Shop: Es werden keine Daten gespeichert oder übertragen.</p>
+      </aside>
+    </form>
+  </main>
+
+  <footer class="co-foot">
+    © Demo-Software-Tools GmbH <a href="#" onclick="return false">AGB</a><a href="#" onclick="return false">Datenschutz</a><a href="#" onclick="return false">Impressum</a>
+  </footer>
+</div>
+
+<!-- ========== View 3: confirmation ========== -->
+<div id="viewConfirm" hidden>
+  <header class="co-head">
+    <div class="wrap">
+      <a class="logo" href="#" data-go="shop"><span class="mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg></span><span>Demo-Software-<b>Tools</b></span></a>
+      <div class="steps" aria-label="Fortschritt">
+        <div class="step done"><span class="n"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span>Edition</div>
+        <span class="bar done"></span>
+        <div class="step done"><span class="n"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span>Daten &amp; Zahlung</div>
+        <span class="bar done"></span>
+        <div class="step now"><span class="n">3</span>Bestätigung</div>
+      </div>
+      <span class="secure"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Sichere Bestellung</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="conf-hero">
+      <div class="ok"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></div>
+      <h1>Vielen Dank, Ihr Abo ist aktiv</h1>
+      <p id="confIntro">Ihre Bestellung ist bei uns eingegangen. Eine Bestätigung erhalten Sie per E-Mail.</p>
+      <div class="order-no" id="orderNoPill" hidden>Abo-Nummer <b id="orderNo"></b></div>
+    </section>
+
+    <div class="conf-main" id="confDetails" hidden>
+      <div>
+        <div class="card">
+          <h2>Ihr Abonnement</h2>
+          <div class="sum-item">
+            <div class="app-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8zM19 14l.9 2.6 2.6.9-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9z"/></svg></div>
+            <div><strong id="cPlan"></strong><small id="cSpec"></small></div>
+          </div>
+          <div class="row"><span>Netto</span><span id="cNet"></span></div>
+          <div class="row"><span>MwSt. (19 %)</span><span id="cVat"></span></div>
+          <div class="row big" style="border-top:1px solid var(--line);margin-top:8px;padding-top:10px"><span>Heute berechnet</span><span id="cGross"></span></div>
+          <div class="renew" id="cRenew"></div>
+        </div>
+
+        <div class="card">
+          <h2>So geht es weiter</h2>
+          <ol class="next-steps">
+            <li><span id="cInvite">Die Lizenz-Administration erhält eine Einladung per E-Mail.</span></li>
+            <li><span>Im Arbeitsbereich die Lizenzen an das Team verteilen.</span></li>
+            <li><span>Die Rechnung kommt als PDF an <b id="cInvoiceMail"></b>.</span></li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <div class="cols">
+            <div class="block"><h3>Rechnungsadresse</h3><p id="cAddress"></p></div>
+            <div class="block"><h3>Kontakt</h3><p id="cContact"></p></div>
+          </div>
+        </div>
+      </div>
+
+      <aside>
+        <div class="card">
+          <h2>Vertragsdetails</h2>
+          <dl class="facts" id="cFacts"></dl>
+        </div>
+        <div class="actions-row">
+          <button class="btn btn-outline" type="button" onclick="window.print()">Drucken</button>
+          <a class="btn btn-primary" href="#" data-go="shop">Zur Startseite</a>
+        </div>
+      </aside>
+    </div>
+
+    <div id="confEmpty" style="text-align:center">
+      <a class="btn btn-primary" href="#" data-go="shop" style="display:inline-flex;width:auto;padding:12px 28px">Zu den Editionen</a>
+    </div>
+    <p class="legal" style="text-align:center;margin-top:22px">Demo-Shop: Es werden keine Daten gespeichert oder übertragen.</p>
+  </main>
+
+  <footer class="co-foot">
+    © Demo-Software-Tools GmbH <a href="#" onclick="return false">AGB</a><a href="#" onclick="return false">Datenschutz</a><a href="#" onclick="return false">Impressum</a>
+  </footer>
+</div>
+
+<script>
+  // ---------- Catalogue ----------
+  const PLANS = {
+    basic: {
+      name: "Basic", sku: "DST-DAI-BAS", monthly: 14.90, yearly: 11.90, min: 1,
+      for: "Für Einzelpersonen und kleine Teams, die regelmäßig Bilder aufbereiten.",
+      features: ["100 KI-Credits pro Nutzer und Monat", "Freistellen und Retusche", "Export bis 4K", "50 GB Cloud-Speicher", "Support per E-Mail"],
+    },
+    pro: {
+      name: "Professional", sku: "DST-DAI-PRO", monthly: 29.90, yearly: 23.90, min: 1, featured: true,
+      for: "Für Marketing- und Kreativteams mit hohem Bildvolumen.",
+      head: "Alles aus Basic, plus:",
+      features: ["1.000 KI-Credits pro Nutzer und Monat", "Generatives Füllen und Erweitern", "Stapelverarbeitung", "Gemeinsame Markenvorlagen", "Export bis 8K, 1 TB Speicher"],
+    },
+    enterprise: {
+      name: "Enterprise", sku: "DST-DAI-ENT", monthly: 54.90, yearly: 43.90, min: 5,
+      for: "Für Unternehmen mit zentraler Verwaltung und Sicherheitsanforderungen.",
+      head: "Alles aus Professional, plus:",
+      features: ["Unbegrenzte KI-Credits (Fair Use)", "Single Sign-on (SAML, Entra ID)", "Rollen, Freigaben und Audit-Log", "Auftragsverarbeitungsvertrag", "Persönliche Ansprechperson, SLA 99,9 %"],
+    },
+  };
+  const COMPARE = [
+    ["KI-Funktionen"],
+    ["KI-Credits pro Nutzer und Monat", "100", "1.000", "Unbegrenzt"],
+    ["Freistellen, Retusche, Farbanpassung", true, true, true],
+    ["Generatives Füllen und Erweitern", false, true, true],
+    ["Hochskalieren", "bis 4K", "bis 8K", "bis 8K"],
+    ["Zusammenarbeit"],
+    ["Cloud-Speicher", "50 GB", "1 TB", "Unbegrenzt"],
+    ["Gemeinsame Markenvorlagen", false, true, true],
+    ["Stapelverarbeitung", false, true, true],
+    ["Verwaltung und Sicherheit"],
+    ["Zentrale Lizenzverwaltung", true, true, true],
+    ["Single Sign-on", false, false, true],
+    ["Audit-Log und Rollen", false, false, true],
+    ["Support", "E-Mail", "E-Mail und Chat", "Persönlich, SLA"],
+  ];
+  const VAT = 0.19;
+  const MAX_SEATS = 250;
+
+  const $ = id => document.getElementById(id);
+  const eur = n => n.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+  const round2 = n => Math.round(n * 100) / 100;
+  const fmtDate = d => d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const CHECK = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>';
+  const DASH = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 12h12"/></svg>';
+
+  // ---------- Cart state (kept for this tab) ----------
+  let cart = { plan: "pro", seats: 1, cycle: "monthly" };
+  try { cart = Object.assign(cart, JSON.parse(sessionStorage.getItem("dstCart") || "{}")); } catch {}
+  // Edition pages (/basic/, /professional/, /enterprise/) preselect their edition
+  const FIXED_PLAN = document.querySelector('meta[name="dst-plan"]')?.content;
+  if (PLANS[FIXED_PLAN]) cart.plan = FIXED_PLAN;
+  if (!PLANS[cart.plan]) cart.plan = "pro";
+  const SHOP_TITLE = document.title;
+  const saveCart = () => { try { sessionStorage.setItem("dstCart", JSON.stringify(cart)); } catch {} };
+
+  function clampSeats(n, plan) {
+    n = Math.round(Number(n)) || 1;
+    return Math.min(MAX_SEATS, Math.max(plan ? PLANS[plan].min : 1, n));
+  }
+
+  // Amounts for one billing period
+  function quote(planKey, seats, cycle) {
+    const p = PLANS[planKey];
+    const months = cycle === "yearly" ? 12 : 1;
+    const list = round2(p.monthly * seats * months);
+    const net = round2(p[cycle] * seats * months);
+    const vat = round2(net * VAT);
+    return { list, net, discount: round2(list - net), vat, gross: round2(net + vat), months, unit: p[cycle] };
+  }
+  function nextBilling(cycle) {
+    const d = new Date();
+    if (cycle === "yearly") d.setFullYear(d.getFullYear() + 1); else d.setMonth(d.getMonth() + 1);
+    return d;
+  }
+
+  // ---------- Pricing page ----------
+  function renderPlans() {
+    const box = $("planCards");
+    box.textContent = "";
+    Object.entries(PLANS).forEach(([key, p]) => {
+      const seats = Math.max(cart.seats, p.min);
+      const q = quote(key, seats, cart.cycle);
+      const el = document.createElement("article");
+      el.className = "plan" + (p.featured ? " featured" : "");
+      el.innerHTML = `
+        ${p.featured ? '<span class="badge">Beliebteste Wahl</span>' : ""}
+        <h3>${p.name}</h3>
+        <p class="for">${p.for}</p>
+        <div class="price"><span class="amt">${eur(p[cart.cycle]).replace(" €", "")} €</span><span class="per">je Nutzer<br>und Monat</span></div>
+        <div class="was">${cart.cycle === "yearly" ? `<s>${eur(p.monthly)}</s> bei jährlicher Zahlung` : "zzgl. MwSt., monatlich kündbar"}</div>
+        <div class="total">${seats} Nutzer: <b>${eur(q.net)}</b> ${cart.cycle === "yearly" ? "pro Jahr" : "pro Monat"} netto</div>
+        <button class="btn ${p.featured ? "btn-primary" : "btn-outline"}" type="button" data-buy="${key}">Jetzt kaufen</button>
+        ${p.min > 1 ? `<div class="min-note">Ab ${p.min} Nutzern</div>` : ""}
+        <ul>${p.head ? `<li class="head">${p.head}</li>` : ""}${p.features.map(f => `<li>${CHECK}<span>${f}</span></li>`).join("")}</ul>`;
+      box.appendChild(el);
+    });
+    box.querySelectorAll("[data-buy]").forEach(b => b.addEventListener("click", () => {
+      cart.plan = b.dataset.buy;
+      cart.seats = clampSeats(cart.seats, cart.plan);
+      saveCart();
+      go("kasse");
+    }));
+  }
+
+  function renderCompare() {
+    const tb = $("compareBody");
+    COMPARE.forEach(r => {
+      const tr = document.createElement("tr");
+      if (r.length === 1) { tr.className = "grp"; tr.innerHTML = `<td colspan="4">${r[0]}</td>`; }
+      else {
+        tr.innerHTML = r.map((v, i) => {
+          const cls = i === 2 ? ' class="hl"' : "";
+          if (i === 0) return `<td>${v}</td>`;
+          if (v === true) return `<td${cls}><span class="yes" aria-label="enthalten">${CHECK}</span></td>`;
+          if (v === false) return `<td${cls}><span class="no" aria-label="nicht enthalten">${DASH}</span></td>`;
+          return `<td${cls}>${v}</td>`;
+        }).join("");
+      }
+      tb.appendChild(tr);
+    });
+  }
+
+  // ---------- Checkout summary ----------
+  function renderSummary() {
+    const p = PLANS[cart.plan];
+    cart.seats = clampSeats(cart.seats, cart.plan);
+    const q = quote(cart.plan, cart.seats, cart.cycle);
+    const period = cart.cycle === "yearly" ? "jährlich" : "monatlich";
+    $("sumPlan").textContent = `Demo AI Studio ${p.name}`;
+    $("sumPer").textContent = `${eur(p[cart.cycle])} je Nutzer und Monat, ${period} abgerechnet` + (p.min > 1 ? `, ab ${p.min} Nutzern` : "");
+    $("seats2").value = cart.seats;
+    $("seats2").min = p.min;
+    $("lineLabel").textContent = `${cart.seats} x ${eur(p.monthly)} x ${q.months} ${q.months === 1 ? "Monat" : "Monate"}`;
+    $("lineAmt").textContent = eur(q.list);
+    $("discRow").hidden = q.discount <= 0;
+    $("discAmt").textContent = "-" + eur(q.discount);
+    $("sumNet").textContent = eur(q.net);
+    $("sumVat").textContent = eur(q.vat);
+    $("sumGross").textContent = eur(q.gross);
+    $("renewText").textContent = `Danach ${eur(q.gross)} ${period} ab ${fmtDate(nextBilling(cart.cycle))}. Kündbar zum Ende des Abrechnungszeitraums.`;
+  }
+
+  function renderAll() {
+    document.querySelectorAll("[data-cycle]").forEach(b => {
+      const on = b.dataset.cycle === cart.cycle;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on);
+    });
+    $("seats").value = cart.seats;
+    renderPlans();
+    renderSummary();
+    saveCart();
+  }
+
+  document.querySelectorAll("[data-cycle]").forEach(b => b.addEventListener("click", () => { cart.cycle = b.dataset.cycle; renderAll(); }));
+  document.querySelectorAll("[data-step]").forEach(b => b.addEventListener("click", () => {
+    const inCheckout = !!b.closest("#viewCheckout");
+    cart.seats = clampSeats(cart.seats + Number(b.dataset.step), inCheckout ? cart.plan : null);
+    renderAll();
+  }));
+  $("seats").addEventListener("change", e => { cart.seats = clampSeats(e.target.value, null); renderAll(); });
+  $("seats2").addEventListener("change", e => { cart.seats = clampSeats(e.target.value, cart.plan); renderAll(); });
+
+  // Before/after slider
+  const setSplit = v => $("stage").style.setProperty("--split", v + "%");
+  $("split").addEventListener("input", e => setSplit(e.target.value));
+  setSplit($("split").value);
+
+  // ---------- SpendOne prefill (all keys optional) ----------
+  const COUNTRY_NAMES = {
+    Deutschland: ["de", "deu", "deutschland", "germany"],
+    "Österreich": ["at", "aut", "österreich", "austria"],
+    Schweiz: ["ch", "che", "schweiz", "switzerland"],
+  };
+  function applySpendOnePrefill(p) {
+    if (!p) return;
+    const set = (id, v) => { if (v) $(id).value = v; };
+    set("company", p.companyName);
+    set("vatId", p.taxId);
+    set("poNumber", p.orderNo);
+    set("invoiceEmail", p.invoiceEmail);
+    set("street", p.street);
+    if (p.postcodeCity) {
+      const [postcode, ...city] = p.postcodeCity.split(" ");
+      set("postcode", postcode);
+      set("city", city.join(" "));
+    }
+    if (p.buyer) {
+      const parts = p.buyer.trim().split(/\s+/);
+      set("lastName", parts.length > 1 ? parts.pop() : "");
+      set("firstName", parts.join(" "));
+    }
+    if (p.country) {
+      const c = p.country.trim().toLowerCase();
+      const match = Object.keys(COUNTRY_NAMES).find(n => COUNTRY_NAMES[n].includes(c));
+      const sel = $("country");
+      if (match) sel.value = match;
+      else { const o = document.createElement("option"); o.textContent = p.country; sel.appendChild(o); sel.value = p.country; }
+    }
+    const lines = [`Bestelldaten aus SpendOne übernommen${p.orderNo ? ` (${p.orderNo})` : ""}.`];
+    if (p.items && p.items.length) lines.push("Artikel: " + p.items.map(i => i.name).join(", "));
+    if (p.total) lines.push("Gesamt laut SpendOne: " + p.total);
+    $("spendoneNote").textContent = lines.join("\n");
+    $("spendoneNote").hidden = false;
+  }
+  applySpendOnePrefill(window.spendOnePrefill);
+
+  // ---------- Payment ----------
+  document.querySelectorAll('input[name="pay"]').forEach(r => r.addEventListener("change", () => {
+    const v = document.querySelector('input[name="pay"]:checked').value;
+    document.querySelectorAll(".pay label").forEach(l => l.classList.toggle("sel", l.querySelector("input").checked));
+    $("payCard").hidden = v !== "card";
+    document.querySelectorAll("[data-pay]").forEach(i => i.required = v === "card");
+  }));
+  $("cardNo").addEventListener("input", e => {
+    const d = e.target.value.replace(/\D/g, "").slice(0, 16);
+    e.target.value = d.replace(/(.{4})/g, "$1 ").trim();
+  });
+  $("expiry").addEventListener("input", e => {
+    const d = e.target.value.replace(/\D/g, "").slice(0, 4);
+    e.target.value = d.length > 2 ? d.slice(0, 2) + "/" + d.slice(2) : d;
+  });
+
+  // ---------- Submit (demo only, nothing is sent) ----------
+  $("checkout").addEventListener("submit", e => {
+    e.preventDefault();
+    const p = PLANS[cart.plan];
+    const q = quote(cart.plan, cart.seats, cart.cycle);
+    const payLabel = { card: "Kreditkarte", invoice: "Kauf auf Rechnung", sepa: "SEPA-Lastschrift" };
+    // Card and bank inputs are never read or passed on
+    const order = {
+      orderNo: "DST-" + Math.floor(100000 + Math.random() * 900000),
+      plan: `Demo AI Studio ${p.name}`, sku: p.sku,
+      spec: `${cart.seats} Nutzer, ${eur(p[cart.cycle])} je Nutzer und Monat, ${cart.cycle === "yearly" ? "jährliche" : "monatliche"} Abrechnung`,
+      cycle: cart.cycle, seats: cart.seats,
+      net: eur(q.net), vat: eur(q.vat), gross: eur(q.gross),
+      start: fmtDate(new Date()), next: fmtDate(nextBilling(cart.cycle)),
+      company: $("company").value, vatId: $("vatId").value, poNumber: $("poNumber").value,
+      name: [$("salutation").value, $("firstName").value, $("lastName").value].filter(Boolean).join(" "),
+      email: $("email").value, invoiceEmail: $("invoiceEmail").value || $("email").value,
+      adminEmail: $("adminEmail").value,
+      street: $("street").value, postcodeCity: [$("postcode").value, $("city").value].filter(Boolean).join(" "),
+      country: $("country").value,
+      payment: payLabel[document.querySelector('input[name="pay"]:checked').value],
+    };
+    try { sessionStorage.setItem("dstOrder", JSON.stringify(order)); } catch {}
+    window.lastOrder = order;
+    e.target.reset();
+    document.querySelectorAll('input[name="pay"]')[0].dispatchEvent(new Event("change"));
+    go("bestaetigung");
+  });
+
+  // ---------- Confirmation ----------
+  function setLines(el, lines) {
+    el.textContent = "";
+    lines.filter(Boolean).forEach((l, i) => {
+      if (i) el.appendChild(document.createElement("br"));
+      el.appendChild(document.createTextNode(l));
+    });
+  }
+  function renderConfirmation() {
+    let o = window.lastOrder || null;
+    if (!o) { try { o = JSON.parse(sessionStorage.getItem("dstOrder") || "null"); } catch {} }
+    $("confDetails").hidden = !o;
+    $("confEmpty").hidden = !!o;
+    $("orderNoPill").hidden = !o;
+    if (!o) {
+      $("confIntro").textContent = "Es liegt keine aktuelle Bestellung vor. Wählen Sie eine Edition, um ein Abo abzuschließen.";
+      return;
+    }
+    $("orderNo").textContent = o.orderNo;
+    $("confIntro").textContent = `Wir haben die Bestätigung an ${o.email} gesendet. Ihr Team kann sofort loslegen.`;
+    $("cPlan").textContent = o.plan;
+    $("cSpec").textContent = o.spec;
+    $("cNet").textContent = o.net;
+    $("cVat").textContent = o.vat;
+    $("cGross").textContent = o.gross;
+    $("cRenew").textContent = `Nächste Abrechnung am ${o.next} über ${o.gross}. Kündbar zum Ende des Abrechnungszeitraums.`;
+    $("cInvite").textContent = `${o.adminEmail} erhält eine Einladung zur Lizenzverwaltung.`;
+    $("cInvoiceMail").textContent = o.invoiceEmail;
+    setLines($("cAddress"), [o.company, o.name, o.street, o.postcodeCity, o.country]);
+    setLines($("cContact"), [o.email, o.vatId ? `USt-IdNr. ${o.vatId}` : ""]);
+    const facts = [
+      ["Abo-Nummer", o.orderNo],
+      ["Ihre Bestellnummer", o.poNumber],
+      ["Artikelnummer", o.sku],
+      ["Vertragsbeginn", o.start],
+      ["Lizenzen", `${o.seats} Nutzer`],
+      ["Abrechnung", o.cycle === "yearly" ? "Jährlich im Voraus" : "Monatlich im Voraus"],
+      ["Nächste Abrechnung", o.next],
+      ["Zahlungsart", o.payment],
+    ];
+    const dl = $("cFacts");
+    dl.textContent = "";
+    facts.filter(([, v]) => v).forEach(([k, v]) => {
+      const dt = document.createElement("dt"); dt.textContent = k;
+      const dd = document.createElement("dd"); dd.textContent = v;
+      dl.append(dt, dd);
+    });
+  }
+
+  // ---------- Views (#kasse, #bestaetigung, anything else = shop) ----------
+  const VIEWS = { kasse: "viewCheckout", bestaetigung: "viewConfirm" };
+  function show() {
+    const name = location.hash.slice(1);
+    const id = VIEWS[name] || "viewShop";
+    ["viewShop", "viewCheckout", "viewConfirm"].forEach(v => $(v).hidden = v !== id);
+    if (id === "viewCheckout") renderSummary();
+    if (id === "viewConfirm") renderConfirmation();
+    if (id === "viewShop" && name && $(name)) $(name).scrollIntoView();
+    else window.scrollTo(0, 0);
+    document.title = id === "viewCheckout" ? "Kasse | Demo-Software-Tools"
+      : id === "viewConfirm" ? "Bestellbestätigung | Demo-Software-Tools"
+      : SHOP_TITLE;
+  }
+  function go(name) {
+    if (location.hash.slice(1) === name) show(); else location.hash = name;
+  }
+  document.querySelectorAll("[data-go]").forEach(a => a.addEventListener("click", e => {
+    e.preventDefault();
+    const t = a.dataset.go;
+    if (t === "shop") { history.pushState(null, "", location.pathname + location.search); show(); }
+    else go(t);
+  }));
+  window.addEventListener("hashchange", show);
+
+  renderCompare();
+  renderAll();
+  show();
+</script>
+</body>
+</html>

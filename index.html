@@ -777,7 +777,11 @@ window.spendOnePrefill = window.readSpendOnePrefill();
   // ---------- Cart state (kept for this tab) ----------
   let cart = { plan: "pro", seats: 1, cycle: "monthly" };
   try { cart = Object.assign(cart, JSON.parse(sessionStorage.getItem("dstCart") || "{}")); } catch {}
+  // Edition pages (/basic/, /professional/, /enterprise/) preselect their edition
+  const FIXED_PLAN = document.querySelector('meta[name="dst-plan"]')?.content;
+  if (PLANS[FIXED_PLAN]) cart.plan = FIXED_PLAN;
   if (!PLANS[cart.plan]) cart.plan = "pro";
+  const SHOP_TITLE = document.title;
   const saveCart = () => { try { sessionStorage.setItem("dstCart", JSON.stringify(cart)); } catch {} };
 
   function clampSeats(n, plan) {
@@ -1038,7 +1042,7 @@ window.spendOnePrefill = window.readSpendOnePrefill();
     else window.scrollTo(0, 0);
     document.title = id === "viewCheckout" ? "Kasse | Demo-Software-Tools"
       : id === "viewConfirm" ? "Bestellbestätigung | Demo-Software-Tools"
-      : "Demo AI Studio: Preise und Editionen | Demo-Software-Tools";
+      : SHOP_TITLE;
   }
   function go(name) {
     if (location.hash.slice(1) === name) show(); else location.hash = name;
